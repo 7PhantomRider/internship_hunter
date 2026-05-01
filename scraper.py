@@ -17,11 +17,23 @@ def parsuj_oferty(html):
     print(f"Znaleziono ofert: {len(oferty)}")
     
     for oferta in oferty:
-        tytul = oferta.find("h3", class_="posting-title__position ng-star-inserted")
+  
+        element_h3 = oferta.find("h3", class_="posting-title__position")
         firma = oferta.find("h4", class_="company-name tw-mb-0")
+        tytul = wyczysc_tytul(element_h3) if element_h3 is not None else "Brak tytułu"
+        lokalizacja = oferta.find("nfj-posting-item-city", {"data-cy": "location on the job offer listing"})
         
-        print(f"{tytul.text.strip()} | {firma.text.strip()}")
+        firma_text = firma.text.strip() if firma is not None else "Brak firmy"
+        lokalizacja_text = lokalizacja.text.strip() if lokalizacja is not None else "Brak lokalizacji"
 
+        
+        print(f"{tytul} | {firma_text.strip()} | {lokalizacja_text.strip()}")
+
+def wyczysc_tytul(element_h3):
+    odznaka = element_h3.find("span", class_="title-badge")
+    if odznaka:
+        odznaka.decompose()
+    return element_h3.text.strip()
 
 url = "https://nofluffjobs.com/pl/praca/data-science"
 html = pobierz_html(url)
