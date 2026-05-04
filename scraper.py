@@ -30,6 +30,8 @@ def parsuj_oferty(html):
         firma = oferta.find("h4", class_="company-name tw-mb-0")
         tytul = wyczysc_tytul(element_h3) if element_h3 is not None else "Brak tytułu"
         lokalizacja = oferta.find("nfj-posting-item-city", {"data-cy": "location on the job offer listing"})
+        link_url = oferta.get("href")
+        link = f"https://nofluffjobs.com{link_url}" if link_url else "Brak linku"
         
         firma_text = firma.text.strip() if firma is not None else "Brak firmy"
         lokalizacja_text = lokalizacja.text.strip() if lokalizacja is not None else "Brak lokalizacji"
@@ -40,7 +42,8 @@ def parsuj_oferty(html):
         lista_ofert.append({
             "tytul": tytul,
             "firma": firma_text,
-            "lokalizacja": lokalizacja_text
+            "lokalizacja": lokalizacja_text,
+            "link": link
         })
 
     return pd.DataFrame(lista_ofert)
