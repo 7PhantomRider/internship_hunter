@@ -1,6 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+import os
+
+SLOWA_KLUCZOWE = ["Data", "Engineer", "Intern", "ML", "Python", "AI"]
+
 
 def pobierz_html(url):
     headers = {
@@ -42,15 +46,30 @@ def parsuj_oferty(html):
     return pd.DataFrame(lista_ofert)
 
 
-
 def wyczysc_tytul(element_h3):
     odznaka = element_h3.find("span", class_="title-badge")
     if odznaka:
         odznaka.decompose()
     return element_h3.text.strip()
 
-url = "https://nofluffjobs.com/pl/praca/data-science"
-html = pobierz_html(url)
-df = parsuj_oferty(html)
-print(df)
-#parsuj_oferty(html)
+def filtruj_oferty(df):
+    wzorzec = "|".join(SLOWA_KLUCZOWE)
+    return df[df["tytul"].str.contains(wzorzec, case=False, na=False)]
+
+if __name__ == "__main__":
+    url = "https://nofluffjobs.com/pl/praca/data-science"
+    plik_bazowy = "oferty_nofluff.csv"
+
+    if not os.path.exists(plik_bazowy):
+        print(f"Plik {plik_bazowy} nie istnieje. Pobieranie danych z internetu...")
+        html = pobierz_html(url)
+        df = parsuj_oferty(html)
+        df.to_csv(plik_bazowy, index=False)
+    else:
+        print(f"Plik {plik_bazowy} już istnieje. Wczytywanie danych z pliku...")
+        df = pd.read_csv(plik_bazowy)
+
+    print(f"\nZnaleziono ofert: {len(df)}")
+    df_filtr = filtruj_oferty(df)
+    print(f"Oferty po filtracji: {len(df_filtr)}")
+    print(df_filtr)
