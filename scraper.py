@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 import os
+from datetime import datetime
 
 SLOWA_KLUCZOWE = ["Data", "Engineer", "Intern", "ML", "Python", "AI"]
 
@@ -16,6 +17,8 @@ def pobierz_html(url):
     return None
 
 def parsuj_oferty(html):
+
+    time = datetime.now()
 
     lista_ofert = []
     
@@ -43,7 +46,9 @@ def parsuj_oferty(html):
             "tytul": tytul,
             "firma": firma_text,
             "lokalizacja": lokalizacja_text,
-            "link": link
+            "link": link,
+            "source": "nofluffjobs",
+            "sourced_at": time
         })
 
     return pd.DataFrame(lista_ofert)
